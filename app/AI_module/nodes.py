@@ -15,10 +15,10 @@ Output: The required output is a JSON containing error details in the following 
     {
       "word": "",                  // The mispronounced or omitted word.
       "position": 0,               // The position (index) of the word in the sentence, starting from 0.
-      "error_type": "",            // Type of error (e.g., mispronounced, omitted).
+      "error_type": "",            // Type of error (e.g., phát âm sai, bị bỏ qua) only in Vietnamese.
       "correct_pronunciation": "", // The correct pronunciation of the word.
       "your_pronunciation": "",    // How the word was pronounced by the user.
-      "explanation": ""            // Explanation of the error.
+      "explanation": ""            // Explanation of the error only in Vietnamese.
     }
   ]
 }
@@ -52,7 +52,7 @@ in the audio compared to the text and provide an objective evaluation of the fol
 - intonation (the modulation of the voice)
 - rhythm (the timing and flow)
 - linking (the ability to connect sounds)
-Note: All ratings will be on a 100-point scale, with accompanying notes explaining the scores. The output should be in JSON format.
+Note: All ratings will be on a 100-point scale, with accompanying notes ONLY IN VIETNAMESE (important) explaining the scores. The output should be in JSON format.
 Example: { "clarity": { "score": , "notes": "" }, "naturalness": { "score": , "notes": "" }, "accent": { "score": , "notes": "" }, "intonation": { "score": , "notes": "" }, "rhythm": { "score": , "notes": "" }, "linking": { "score": , "notes": "" } }
 """
     message = [
