@@ -92,3 +92,8 @@ def summary():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@bp.route('/health-check', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'ok'}), 200
