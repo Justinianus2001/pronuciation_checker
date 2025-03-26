@@ -1,6 +1,6 @@
 import os
-from werkzeug.utils import secure_filename
 from app import Config
+from werkzeug.utils import secure_filename
 
 def allowed_file(filename):
     return '.' in filename and \

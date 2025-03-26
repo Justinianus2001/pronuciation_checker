@@ -1,6 +1,6 @@
-from langchain_core.messages import SystemMessage, HumanMessage
-from .state import State
+from langchain_core.messages import HumanMessage, SystemMessage
 from .llm import structured_output_llm
+from .state import State
 
 def analyze_pronunciation_errors_node(state: State) -> State:
     reference_text = state['reference_text']
@@ -26,13 +26,11 @@ Note: Words that are correctly pronounced do not need to be listed in the output
 Begin: \n
 """ + f"reference_text: {reference_text}"
     message = [
-        SystemMessage(
-            content=system_message,
-        ),
+        SystemMessage(content=system_message),
         HumanMessage(
         content=[
             {"type": "text", "text": f"reference_text: {reference_text}"},
-            {"type": "media", "mime_type":"audio/mp3", "data": state["base64_audio"]},
+            {"type": "media", "mime_type": "audio/mp3", "data": state["base64_audio"]},
         ])
     ]
 
@@ -43,26 +41,40 @@ Begin: \n
 def evaluate_speech_metrics_node(state: State) -> State:
     reference_text = state['reference_text']
     system_message = """
-You are an English pronunciation assistant. When a user provides a text (reference_text)
-along with an audio clip reading that text, please carefully analyze all the sound elements
-in the audio compared to the text and provide an objective evaluation of the following:
-- clarity (the level of clarity)
-- naturalness (the degree of naturalness)
-- accent: the similarity to native speakers (American, British)
-- intonation (the modulation of the voice)
-- rhythm (the timing and flow)
-- linking (the ability to connect sounds)
-Note: All ratings will be on a 100-point scale, with accompanying notes ONLY IN VIETNAMESE (important) explaining the scores. The output should be in JSON format.
-Example: { "clarity": { "score": , "notes": "" }, "naturalness": { "score": , "notes": "" }, "accent": { "score": , "notes": "" }, "intonation": { "score": , "notes": "" }, "rhythm": { "score": , "notes": "" }, "linking": { "score": , "notes": "" } }
-"""
+You are an English pronunciation assistant. Based on text passage (reference_text)
+and an audio recording of them reading the text (user_input), evaluate the user's speaking performance
+using the IELTS speaking band descriptors. Provide a band score (1–9) for each of the following criteria:
+- Fluency and Coherence
+- Lexical Resource
+- Grammatical Range and Accuracy
+- Pronunciation
+Output: The required output is a JSON containing scores and feedback for each criterion in the following format:
+{
+  "fluency_and_coherence": {
+    "score": ,                // Band score (1–9)
+    "feedback": ""            // Detailed feedback in Vietnamese
+  },
+  "lexical_resource": {
+    "score": ,                // Band score (1–9)
+    "feedback": ""            // Detailed feedback in Vietnamese
+  },
+  "grammatical_range_and_accuracy": {
+    "score": ,                // Band score (1–9)
+    "feedback": ""            // Detailed feedback in Vietnamese
+  },
+  "pronunciation": {
+    "score": ,                // Band score (1–9)
+    "feedback": ""            // Detailed feedback in Vietnamese
+  }
+}
+Begin:
+""" + f"reference_text: {reference_text}"
     message = [
-        SystemMessage(
-            content=system_message,
-        ),
+        SystemMessage(content=system_message),
         HumanMessage(
         content=[
             {"type": "text", "text": f"reference_text: {reference_text}"},
-            {"type": "media", "mime_type":"audio/mp3", "data": state["base64_audio"]},
+            {"type": "media", "mime_type": "audio/mp3", "data": state["base64_audio"]},
         ])
     ]
     response = structured_output_llm.invoke(message)
@@ -108,13 +120,8 @@ Ví dụ:
 }
 """
     message = [
-        SystemMessage(
-            content=system_message,
-        ),
-        HumanMessage(
-        content=[
-            {"type": "text", "text": f"{test_results}"},
-        ])
+        SystemMessage(content=system_message),
+        HumanMessage(content=[{"type": "text", "text": f"{test_results}"}])
     ]
     response = structured_output_llm.invoke(message)
     return response

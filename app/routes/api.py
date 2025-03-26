@@ -1,13 +1,11 @@
-from flask import Blueprint, request, jsonify
-# from werkzeug.utils import secure_filename
-import os
+import base64
 from app.services.ai_agent import (
     analyze_pronunciation, 
     evaluate_speech_metrics,
-    generate_speaking_report
+    generate_speaking_report,
 )
-from app.utils.file_utils import allowed_file, save_uploaded_file
-import base64
+from app.utils.file_utils import allowed_file
+from flask import Blueprint, request, jsonify
 
 
 bp = Blueprint('api', __name__)
@@ -31,7 +29,7 @@ def analyze():
     try:
         base64_audio = base64.b64encode(audio_file.read()).decode('utf-8')
         # Save uploaded file
-        audio_path = save_uploaded_file(audio_file)
+        # audio_path = save_uploaded_file(audio_file)
         
         # Process with AI Agent
         result = analyze_pronunciation(reference_text, base64_audio)
@@ -64,7 +62,7 @@ def evaluate():
     try:
         base64_audio = base64.b64encode(audio_file.read()).decode('utf-8')
         # Save uploaded file
-        audio_path = save_uploaded_file(audio_file)
+        # audio_path = save_uploaded_file(audio_file)
         
         # Process with AI Agent
         result = evaluate_speech_metrics(reference_text, base64_audio)

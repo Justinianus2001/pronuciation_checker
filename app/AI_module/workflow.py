@@ -1,11 +1,11 @@
 from langgraph.graph import StateGraph, START, END
-from .state import State
 from .nodes import (
     analyze_pronunciation_errors_node,
     evaluate_speech_metrics_node,
+    generate_speaking_report_node,
     render_highlighted_html_node,
-    generate_speaking_report_node
 )
+from .state import State
 
 # Workflow 1: Pronunciation Error Workflow
 pronunciation_error_workflow = StateGraph(State)
