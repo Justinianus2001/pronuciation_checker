@@ -55,7 +55,7 @@ sleep 10
 
 # Check if application is running
 echo "Checking application health..."
-if curl -f http://localhost/api/v1/health-check &> /dev/null; then
+if curl -f http://localhost:5000/api/v1/health-check &> /dev/null; then
     echo "✓ Application is running successfully!"
 else
     echo "⚠️  Warning: Application may not be running correctly."
@@ -66,8 +66,9 @@ echo ""
 echo "=========================================="
 echo "Deployment Complete!"
 echo "=========================================="
-echo "Application URL: http://localhost"
-echo "Health Check: http://localhost/api/v1/health-check"
+echo "Application URL: http://localhost:5000"
+echo "Health Check: http://localhost:5000/api/v1/health-check"
+echo "Storage Stats: http://localhost:5000/api/v1/storage-stats"
 echo ""
 echo "Useful commands:"
 echo "  View logs:        docker-compose logs -f"

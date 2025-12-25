@@ -88,10 +88,24 @@ UPLOAD_FOLDER=./uploads
 # Production Settings
 FLASK_ENV=production
 FLASK_DEBUG=False
+
+# Cleanup Configuration
+CLEANUP_ENABLED=true
+CLEANUP_MAX_AGE_DAYS=7
+CLEANUP_INTERVAL_HOURS=24
 EOF
     echo "⚠️  IMPORTANT: Edit .env file and add your Google API key!"
     echo "   Run: nano $APP_DIR/.env"
 fi
+
+# Setup cleanup cron job (optional but recommended)
+echo "Setting up cleanup cron job..."
+CRON_SCRIPT="$APP_DIR/scripts/cleanup_cron.sh"
+chmod +x "$CRON_SCRIPT"
+
+# Add cron job if not already present
+(crontab -l 2>/dev/null | grep -v "$CRON_SCRIPT"; echo "0 2 * * * $CRON_SCRIPT") | crontab -
+echo "✓ Cleanup cron job added (runs daily at 2 AM)"
 
 # Create Gunicorn configuration
 echo "Creating Gunicorn configuration..."

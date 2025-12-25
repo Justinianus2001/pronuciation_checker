@@ -9,6 +9,7 @@
 - IELTS speaking metrics evaluation
 - Comprehensive speaking reports
 - Audio file processing (MP3, WAV, WebM)
+- **Automatic cleanup** of old uploads (prevents storage issues)
 
 ### Tech Stack
 - **Backend**: Flask + Python 3.11
@@ -114,6 +115,11 @@ GOOGLE_API_KEY=your_google_api_key_here
 # Optional (auto-generated if not set)
 SECRET_KEY=your-secret-key
 UPLOAD_FOLDER=./uploads
+
+# Cleanup (optional - defaults shown)
+CLEANUP_ENABLED=true
+CLEANUP_MAX_AGE_DAYS=7
+CLEANUP_INTERVAL_HOURS=24
 ```
 
 ---

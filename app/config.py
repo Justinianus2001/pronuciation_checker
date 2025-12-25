@@ -10,6 +10,11 @@ class Config:
     ALLOWED_EXTENSIONS = {'mp3', 'wav', 'webm'}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
     GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+    
+    # Cleanup configuration
+    CLEANUP_ENABLED = os.environ.get('CLEANUP_ENABLED', 'true').lower() == 'true'
+    CLEANUP_MAX_AGE_DAYS = int(os.environ.get('CLEANUP_MAX_AGE_DAYS', '7'))
+    CLEANUP_INTERVAL_HOURS = int(os.environ.get('CLEANUP_INTERVAL_HOURS', '24'))
 
     # Set environment variables
     os.environ["GOOGLE_API_KEY"] = os.getenv('GOOGLE_API_KEY')

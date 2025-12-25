@@ -5,7 +5,8 @@ from app.services.ai_agent import (
     generate_speaking_report,
 )
 from app.utils.file_utils import allowed_file
-from flask import Blueprint, request, jsonify
+from app.utils.cleanup import FileCleanupService
+from flask import Blueprint, request, jsonify, current_app
 
 
 bp = Blueprint('api', __name__)
@@ -95,3 +96,37 @@ def summary():
 @bp.route('/health-check', methods=['GET'])
 def health_check():
     return jsonify({'status': 'ok'}), 200
+
+
+@bp.route('/storage-stats', methods=['GET'])
+def storage_stats():
+    """Get current storage statistics"""
+    try:
+        upload_folder = current_app.config.get('UPLOAD_FOLDER', './uploads')
+        cleanup_service = FileCleanupService(upload_folder)
+        stats = cleanup_service.get_storage_stats()
+        
+        return jsonify({
+            'status': 'success',
+            'data': stats
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@bp.route('/cleanup-uploads', methods=['POST'])
+def cleanup_uploads():
+    """Manually trigger cleanup of old uploads"""
+    try:
+        upload_folder = current_app.config.get('UPLOAD_FOLDER', './uploads')
+        max_age_days = request.json.get('max_age_days', 7) if request.json else 7
+        
+        cleanup_service = FileCleanupService(upload_folder, max_age_days)
+        result = cleanup_service.cleanup_old_files()
+        
+        return jsonify({
+            'status': 'success',
+            'data': result
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
