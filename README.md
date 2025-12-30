@@ -9,6 +9,7 @@ AI-powered English pronunciation analysis application using Google Gemini 2.0 Fl
 - 📝 **Speaking Reports** - Generate comprehensive performance reports
 - 🎵 **Audio Support** - MP3, WAV, WebM formats (max 16MB)
 - 🧹 **Auto Cleanup** - Automatic deletion of old uploads (7-day retention)
+- 🛡️ **Rate Limiting** - IP-based limits to prevent spam and control API costs
 
 ## Tech Stack
 
@@ -102,6 +103,8 @@ bash scripts/deploy_cloudformation.sh
 
 ### Analyze Pronunciation Errors
 
+**Rate Limit**: 10 requests per hour per IP
+
 ```bash
 POST /api/v1/analyze-pronunciation-error
 Content-Type: multipart/form-data
@@ -130,6 +133,8 @@ Response:
 ```
 
 ### Evaluate Speech Metrics
+
+**Rate Limit**: 10 requests per hour per IP
 
 ```bash
 POST /api/v1/evaluate-speech-metrics
@@ -165,6 +170,8 @@ Response:
 
 ### Generate Speaking Report
 
+**Rate Limit**: 20 requests per hour per IP
+
 ```bash
 POST /api/v1/generate-speaking-report
 Content-Type: application/x-www-form-urlencoded
@@ -184,6 +191,8 @@ Response:
 ```
 
 ### Storage Management
+
+**Rate Limit**: 100 requests per hour per IP
 
 ```bash
 # Get storage statistics
@@ -218,7 +227,96 @@ UPLOAD_FOLDER=./uploads
 CLEANUP_ENABLED=true
 CLEANUP_MAX_AGE_DAYS=7
 CLEANUP_INTERVAL_HOURS=24
+
+# Rate Limiting (defaults shown)
+RATELIMIT_ENABLED=true
+RATELIMIT_AI_ENDPOINTS=10 per hour
+RATELIMIT_REPORT_ENDPOINT=20 per hour
+RATELIMIT_UTILITY_ENDPOINTS=100 per hour
 ```
+
+---
+
+## Rate Limiting
+
+### Overview
+
+To prevent API abuse and control Google API costs, the application implements IP-based rate limiting. This is especially important for demo deployments where API credits are limited.
+
+### Default Limits (per IP address)
+
+| Endpoint Category | Limit | Endpoints |
+|------------------|-------|-----------|
+| **AI Operations** | 10 requests/hour | `/analyze-pronunciation-error`, `/evaluate-speech-metrics` |
+| **Report Generation** | 20 requests/hour | `/generate-speaking-report` |
+| **Utility** | 100 requests/hour | `/health-check`, `/storage-stats`, `/cleanup-uploads` |
+
+### Rate Limit Headers
+
+All responses include rate limit information in headers:
+
+```bash
+X-RateLimit-Limit: 10        # Maximum requests allowed
+X-RateLimit-Remaining: 7     # Requests remaining in current window
+X-RateLimit-Reset: 1640995200 # Unix timestamp when limit resets
+```
+
+### Checking Rate Limit Status
+
+```bash
+# View rate limit headers
+curl -I http://localhost:5000/api/v1/health-check
+
+# Example response headers:
+# X-RateLimit-Limit: 100
+# X-RateLimit-Remaining: 99
+# X-RateLimit-Reset: 1640995200
+```
+
+### When Rate Limit is Exceeded
+
+```json
+{
+  "error": "Rate limit exceeded",
+  "message": "Too many requests. This is a demo application with limited API credits. Please try again later.",
+  "limit": "10 per 1 hour"
+}
+```
+
+HTTP Status Code: `429 Too Many Requests`
+
+### Customizing Rate Limits
+
+Edit `.env` file:
+
+```bash
+# Disable rate limiting (not recommended for production)
+RATELIMIT_ENABLED=false
+
+# Adjust limits (examples)
+RATELIMIT_AI_ENDPOINTS=5 per hour          # Stricter
+RATELIMIT_AI_ENDPOINTS=20 per hour         # More generous
+RATELIMIT_AI_ENDPOINTS=100 per day         # Daily limit
+RATELIMIT_REPORT_ENDPOINT=50 per hour
+RATELIMIT_UTILITY_ENDPOINTS=200 per hour
+```
+
+### Troubleshooting Rate Limits
+
+**Problem**: Getting 429 errors too frequently
+
+**Solutions**:
+1. Increase limits in `.env` file
+2. Wait for the rate limit window to reset
+3. Check `X-RateLimit-Reset` header for reset time
+4. For production use, consider implementing user authentication with per-user limits
+
+**Problem**: Rate limiting not working
+
+**Solutions**:
+1. Verify `RATELIMIT_ENABLED=true` in `.env`
+2. Check application logs for rate limiter initialization
+3. Ensure `flask-limiter` is installed: `pip install flask-limiter`
 
 ---
 
